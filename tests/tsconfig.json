@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "jsx": "react-jsx",
+    "ignoreDeprecations": "6.0",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "outDir": "./dist",
+    "rootDir": "..",
+    "types": ["node"],
+    "paths": {
+      "@/*": ["../src/*"]
+    }
+  },
+  "include": ["./*.ts", "../src/**/*.ts"],
+  "exclude": [
+    "../src/db/client.ts",
+    "../src/lib/ids.ts",
+    "../src/lib/crypto/keys.ts",
+    "../src/widgets",
+    "../src/lib/widgetBridge.ts",
+    "../src/repo/widget.ts"
+  ]
+}
