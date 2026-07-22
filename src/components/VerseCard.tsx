@@ -3,6 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { useDb } from '../db/DbProvider';
 import { formatRef, type VerseRef } from '../lib/scripture/refs';
+import { translationAbbrev } from '../lib/scripture/translations';
 import { getPassage } from '../repo/scripture';
 import { useTheme } from '../theme/ThemeContext';
 import { fonts } from '../theme/tokens';
@@ -16,10 +17,10 @@ const COLLAPSE_AFTER = 4;
  */
 export function VerseCard({ refv, onPressRef }: { refv: VerseRef; onPressRef?: () => void }) {
   const t = useTheme();
-  const { scripture } = useDb();
+  const { scripture, scriptureId } = useDb();
   const [expanded, setExpanded] = useState(false);
   const { data: verses } = useQuery({
-    queryKey: ['passage', refv.book, refv.chapter, refv.verseStart, refv.verseEnd],
+    queryKey: ['passage', scriptureId, refv.book, refv.chapter, refv.verseStart, refv.verseEnd],
     queryFn: () => getPassage(scripture, refv),
   });
 
@@ -40,7 +41,7 @@ export function VerseCard({ refv, onPressRef }: { refv: VerseRef; onPressRef?: (
       }}
     >
       <Pressable onPress={onPressRef} accessibilityRole={onPressRef ? 'button' : undefined}>
-        <Overline style={{ color: t.gold }}>{formatRef(refv)} · WEB</Overline>
+        <Overline style={{ color: t.gold }}>{formatRef(refv)} · {translationAbbrev(scriptureId)}</Overline>
       </Pressable>
       <Text style={{ fontFamily: fonts.serif, fontSize: 16, lineHeight: 26, color: t.ink }}>
         {shown.map((v, i) => (

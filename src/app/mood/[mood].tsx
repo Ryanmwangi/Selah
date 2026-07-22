@@ -14,7 +14,7 @@ import { fonts, MOOD_META } from '../../theme/tokens';
 const INTROS: Record<string, string> = {
   still: 'Be quiet a moment. Let these settle.',
   grateful: 'Name the gifts. Here is language for thanks.',
-  hopeful: 'Hope is not wishful — it is anchored. Read slowly.',
+  hopeful: 'Hope is not wishful; it is anchored. Read slowly.',
   rejoicing: 'Let your joy have somewhere to land.',
   peaceful: 'Guard this peace. These verses keep it.',
   content: 'Enough is a gift. Sit with it here.',
@@ -29,7 +29,7 @@ const INTROS: Record<string, string> = {
   tempted: 'You have a way out, and you are not alone in it.',
 };
 
-/** Scripture curated for a feeling — read, or start a reflection from one. */
+/** Scripture curated for a feeling, read, or start a reflection from one. */
 export default function MoodVerses() {
   const t = useTheme();
   const { mood } = useLocalSearchParams<{ mood: string }>();

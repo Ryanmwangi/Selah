@@ -19,3 +19,13 @@ export function decodeVerseParam(raw: string | undefined): VerseRef | null {
   if (verseEnd != null && !Number.isInteger(verseEnd)) return null;
   return { book, chapter, verseStart, verseEnd };
 }
+
+/** Several refs joined with "~"; used when journaling about multiple verses. */
+export function encodeVerseParams(refs: VerseRef[]): string {
+  return refs.map(encodeVerseParam).join('~');
+}
+
+export function decodeVerseParams(raw: string | undefined): VerseRef[] {
+  if (!raw) return [];
+  return raw.split('~').map(decodeVerseParam).filter((r): r is VerseRef => r != null);
+}

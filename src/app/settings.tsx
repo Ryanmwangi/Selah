@@ -12,6 +12,7 @@ import { track } from '../lib/analytics';
 import { exportMarkdown } from '../lib/export';
 import { cancelReminder, scheduleDailyReminder } from '../lib/reminders';
 import { searchEntries } from '../repo/entries';
+import { translationAbbrev } from '../lib/scripture/translations';
 import { getSetting, setSetting } from '../repo/settings';
 import { useAppStore, type ThemePref } from '../state/appStore';
 import { useLockStore } from '../state/lockStore';
@@ -58,7 +59,7 @@ function formatReminder(value: string): string {
 
 export default function Settings() {
   const t = useTheme();
-  const { journal } = useDb();
+  const { journal, scriptureId } = useDb();
   const queryClient = useQueryClient();
   const app = useAppStore();
   const lock = useLockStore();
@@ -164,6 +165,20 @@ export default function Settings() {
             {themeChip('dawn', 'Dawn')}
             {themeChip('vigil', 'Vigil')}
           </View>
+        </Section>
+
+        <Section title="Bible">
+          <Pressable
+            onPress={() => router.push('/versions')}
+            accessibilityRole="button"
+            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+          >
+            <View style={{ flex: 1, paddingRight: 12 }}>
+              <Serif style={{ fontSize: 15 }}>Version</Serif>
+              <Ui style={{ color: t.inkFaint }}>Choose a translation and download versions to read offline.</Ui>
+            </View>
+            <Ui style={{ color: t.inkFaint }}>{translationAbbrev(scriptureId)}  ›</Ui>
+          </Pressable>
         </Section>
 
         <Section title="Home & lock screen">

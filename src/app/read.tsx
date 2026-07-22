@@ -1,7 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { EmptyState } from '../components/EmptyState';
 import { IconButton } from '../components/IconButton';
@@ -9,7 +9,10 @@ import { ScreenHeader } from '../components/ScreenHeader';
 import { Ui } from '../components/Typ';
 import { useDb } from '../db/DbProvider';
 import { BOOKS, bookById } from '../lib/scripture/books';
-import { encodeVerseParam } from '../lib/routeParams';
+import { encodeVerseParam, encodeVerseParams } from '../lib/routeParams';
+import { formatRef } from '../lib/scripture/refs';
+import { selectionToRefs } from '../lib/scripture/selection';
+import { getTranslation } from '../lib/scripture/translations';
 import { getPassage } from '../repo/scripture';
 import { useTheme } from '../theme/ThemeContext';
 import { fonts } from '../theme/tokens';
@@ -33,7 +36,7 @@ function neighbor(ref: ChapterRef, dir: -1 | 1): ChapterRef | null {
 
 export default function Read() {
   const t = useTheme();
-  const { scripture } = useDb();
+  const { scripture, scriptureId } = useDb();
   const params = useLocalSearchParams<{ book?: string; chapter?: string }>();
   const scrollRef = useRef<ScrollView>(null);
 
@@ -47,10 +50,36 @@ export default function Read() {
   }, [params.book, params.chapter]);
 
   const { data: verses } = useQuery({
-    queryKey: ['chapter', ref?.book, ref?.chapter],
+    queryKey: ['chapter', scriptureId, ref?.book, ref?.chapter],
     queryFn: () => getPassage(scripture, { book: ref!.book, chapter: ref!.chapter, verseStart: null, verseEnd: null }),
     enabled: ref != null,
   });
+
+  // verse selection (tap to pick one or more, then journal about them)
+  const [selected, setSelected] = useState<Set<number>>(new Set());
+  useEffect(() => {
+    setSelected(new Set()); // clear when the chapter changes
+  }, [ref?.book, ref?.chapter]);
+
+  const toggleVerse = (v: number) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(v)) next.delete(v);
+      else next.add(v);
+      return next;
+    });
+
+  const selectedRefs = useMemo(
+    () => (ref ? selectionToRefs(ref.book, ref.chapter, selected) : []),
+    [ref, selected],
+  );
+  const selectionLabel = selectedRefs.map((r) => formatRef(r)).join(', ');
+
+  const journalAboutSelection = () => {
+    if (selectedRefs.length === 0) return;
+    router.push({ pathname: '/compose', params: { v: encodeVerseParams(selectedRefs) } });
+    setSelected(new Set());
+  };
 
   if (!ref) {
     return (
@@ -90,33 +119,82 @@ export default function Read() {
         }
       />
       <ScrollView ref={scrollRef} contentContainerStyle={{ paddingHorizontal: 28, paddingBottom: 40 }}>
-        <Text style={{ fontFamily: fonts.serif, fontSize: 18, lineHeight: 31, color: t.ink, paddingTop: 6 }}>
-          {(verses ?? []).map((vv) => (
-            <Text key={vv.verse}>
-              <Text style={{ fontFamily: fonts.uiSemi, fontSize: 11, color: t.gold }}>{vv.verse} </Text>
-              {vv.text}
-              {'  '}
-            </Text>
-          ))}
+        {selected.size === 0 ? (
+          <Ui style={{ color: t.inkFaint, paddingTop: 8, paddingBottom: 2 }}>Tap a verse to journal about it.</Ui>
+        ) : null}
+        {/* same serif and size as journal entry text (see MarkdownView); tap a verse to select it */}
+        <Text style={{ fontFamily: fonts.serif, fontSize: 17, lineHeight: 28, color: t.ink, paddingTop: 6 }}>
+          {(verses ?? []).map((vv) => {
+            const on = selected.has(vv.verse);
+            return (
+              <Text
+                key={vv.verse}
+                onPress={() => toggleVerse(vv.verse)}
+                suppressHighlighting
+                accessibilityRole="button"
+                accessibilityLabel={`Verse ${vv.verse}${on ? ', selected' : ''}`}
+                style={on ? { backgroundColor: t.accentSoft, color: t.ink } : undefined}
+              >
+                <Text style={{ fontFamily: fonts.uiSemi, fontSize: 11, color: on ? t.accent : t.gold }}>
+                  {vv.verse}{' '}
+                </Text>
+                {vv.text}
+                {'  '}
+              </Text>
+            );
+          })}
         </Text>
         <Ui style={{ color: t.inkFaint, textAlign: 'center', paddingTop: 18 }}>
-          World English Bible · public domain
+          {getTranslation(scriptureId)?.name ?? scriptureId} · {getTranslation(scriptureId)?.license ?? ''}
         </Ui>
       </ScrollView>
 
-      {/* prev / next chapter */}
-      <View
-        style={{
-          flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-          paddingHorizontal: 20, paddingVertical: 10, borderTopWidth: 1, borderTopColor: t.hairline,
-        }}
-      >
-        <ChapterButton dir="prev" ref={prev} onPress={() => go(prev)} />
-        <Pressable onPress={() => router.push('/bible')} accessibilityRole="button" hitSlop={8}>
-          <Feather name="book" size={18} color={t.inkSoft} />
-        </Pressable>
-        <ChapterButton dir="next" ref={next} onPress={() => go(next)} />
-      </View>
+      {selected.size > 0 ? (
+        // selection action bar: journal about the chosen verse(s)
+        <View
+          style={{
+            flexDirection: 'row', alignItems: 'center', gap: 12,
+            paddingHorizontal: 20, paddingVertical: 12,
+            borderTopWidth: 1, borderTopColor: t.hairline, backgroundColor: t.surface,
+          }}
+        >
+          <Pressable onPress={() => setSelected(new Set())} accessibilityRole="button" accessibilityLabel="Clear selection" hitSlop={8}>
+            <Feather name="x" size={20} color={t.inkFaint} />
+          </Pressable>
+          <Text style={{ flex: 1, fontFamily: fonts.uiMedium, fontSize: 13.5, color: t.inkSoft }} numberOfLines={1}>
+            {selectionLabel}
+          </Text>
+          <Pressable
+            onPress={journalAboutSelection}
+            accessibilityRole="button"
+            accessibilityLabel={`Journal about ${selectionLabel}`}
+            style={({ pressed }) => ({
+              flexDirection: 'row', alignItems: 'center', gap: 7,
+              backgroundColor: t.accent, borderRadius: 12,
+              paddingHorizontal: 16, paddingVertical: 10, opacity: pressed ? 0.85 : 1,
+            })}
+          >
+            <Feather name="feather" size={15} color={t.name === 'dawn' ? '#FCFBFE' : '#1D1B26'} />
+            <Text style={{ fontFamily: fonts.uiSemi, fontSize: 14, color: t.name === 'dawn' ? '#FCFBFE' : '#1D1B26' }}>
+              Journal
+            </Text>
+          </Pressable>
+        </View>
+      ) : (
+        // prev / next chapter
+        <View
+          style={{
+            flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+            paddingHorizontal: 20, paddingVertical: 10, borderTopWidth: 1, borderTopColor: t.hairline,
+          }}
+        >
+          <ChapterButton dir="prev" ref={prev} onPress={() => go(prev)} />
+          <Pressable onPress={() => router.push('/bible')} accessibilityRole="button" hitSlop={8}>
+            <Feather name="book" size={18} color={t.inkSoft} />
+          </Pressable>
+          <ChapterButton dir="next" ref={next} onPress={() => go(next)} />
+        </View>
+      )}
     </View>
   );
 }

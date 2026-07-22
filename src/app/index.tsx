@@ -39,7 +39,7 @@ function useOnThisDay() {
 
 export default function Timeline() {
   const t = useTheme();
-  const { journal, scripture } = useDb();
+  const { journal, scripture, scriptureId } = useDb();
   const dayKeyStr = format(new Date(), 'yyyy-MM-dd');
 
   const { data: entries } = useQuery({
@@ -50,7 +50,7 @@ export default function Timeline() {
 
   const dailyVerse = useMemo(() => pickDailyVerse(dayKeyStr), [dayKeyStr]);
   const { data: dailyVerseText } = useQuery({
-    queryKey: ['dailyVerseText', dayKeyStr],
+    queryKey: ['dailyVerseText', scriptureId, dayKeyStr],
     queryFn: () => getPassage(scripture, dailyVerse),
   });
 

@@ -1,13 +1,13 @@
-# Selah — Home & Lock Screen Widgets
+# Selah, Home & Lock Screen Widgets
 
 Selah can leave you something where you'll see it: **the verse of the day**, **a verse you want to keep**, **a note to yourself**, or **your journaling rhythm** (days + streak).
 
-- **iOS 16+** — home-screen (small/medium) *and* lock-screen (rectangular / inline / circular) widgets.
-- **Android** — home-screen widget. (Android has no general lock-screen widgets; that surface was removed in Android 5 and only partially returned, on tablets, in Android 16.)
+- **iOS 16+**, home-screen (small/medium) *and* lock-screen (rectangular / inline / circular) widgets.
+- **Android**, home-screen widget. (Android has no general lock-screen widgets; that surface was removed in Android 5 and only partially returned, on tablets, in Android 16.)
 
 ## Why this needs a development build
 
-Widgets are native (SwiftUI/WidgetKit on iOS, RemoteViews on Android). They **cannot run in Expo Go.** In Expo Go the app runs normally and the widget screen works as a preview — your choice is saved — but nothing is drawn on the home/lock screen until Selah is a real build.
+Widgets are native (SwiftUI/WidgetKit on iOS, RemoteViews on Android). They **cannot run in Expo Go.** In Expo Go the app runs normally and the widget screen works as a preview, your choice is saved, but nothing is drawn on the home/lock screen until Selah is a real build.
 
 Everything is guarded (`widgetsSupported()` in `src/lib/widgetBridge.ts`), so Expo Go never touches the native widget modules.
 
@@ -30,7 +30,7 @@ refreshWidget():  store payload in settings table  +  publishWidget()
                     row and renders src/widgets/render.tsx
 ```
 
-Payload is refreshed on app launch, after every entry save, and when you change the widget settings — so the daily verse rolls over and the streak stays current.
+Payload is refreshed on app launch, after every entry save, and when you change the widget settings, so the daily verse rolls over and the streak stays current.
 
 ## Enabling it (one-time)
 
@@ -58,4 +58,4 @@ Payload is refreshed on app launch, after every entry save, and when you change 
 
 ## Privacy
 
-A widget is visible on a **locked** screen, so only content you explicitly choose is ever written to the shared store — never your entries, tags, search, or keys. The payload carries a single verse/note/streak line and nothing else. See [SECURITY.md](./SECURITY.md).
+A widget is visible on a **locked** screen, so only content you explicitly choose is ever written to the shared store, never your entries, tags, search, or keys. The payload carries a single verse/note/streak line and nothing else. See [SECURITY.md](./SECURITY.md).

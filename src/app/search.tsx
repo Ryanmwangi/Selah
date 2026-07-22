@@ -52,6 +52,14 @@ export default function Search() {
     <View style={{ flex: 1, backgroundColor: t.bg }}>
       <ScreenHeader
         left={<IconButton name="chevron-left" label="Back" onPress={() => router.back()} size={24} />}
+        right={
+          <IconButton
+            name="calendar"
+            label="Jump to a date"
+            onPress={() => router.push('/calendar')}
+            size={22}
+          />
+        }
       />
       <View style={{ paddingHorizontal: 16, gap: 10 }}>
         <TextInput
@@ -138,7 +146,7 @@ export default function Search() {
           ) : (
             <EmptyState
               title="Search across every season."
-              hint="Words, #tags, moods, or type a reference like “Psalm 23”."
+              hint="Words, #tags, moods, or a reference like “Psalm 23”. Tap the calendar to jump to a date."
             />
           )
         }

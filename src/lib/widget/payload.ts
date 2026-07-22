@@ -28,7 +28,7 @@ export interface WidgetPayload {
   footer: string;
   /** For lock-screen accessory widgets that only fit a word or number. */
   accessoryShort: string;
-  /** ms epoch — lets the widget show "updated" and drives dedupe. */
+  /** ms epoch, lets the widget show "updated" and drives dedupe. */
   updatedAt: number;
 }
 
@@ -73,7 +73,7 @@ export function buildWidgetPayload(i: PayloadInputs): WidgetPayload {
         eyebrow: 'Your rhythm',
         body: headline,
         footer: `${days} ${days === 1 ? 'day' : 'days'} journaled`,
-        accessoryShort: streak > 0 ? `${streak}d` : '—',
+        accessoryShort: streak > 0 ? `${streak}d` : '·',
         updatedAt: i.now,
       };
     }

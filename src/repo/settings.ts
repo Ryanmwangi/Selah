@@ -14,7 +14,8 @@ export type SettingKey =
   | 'widget_kind' // which content the home/lock widget shows (WidgetKind)
   | 'widget_note' // the "note to yourself" text
   | 'widget_verse' // encoded VerseRef the user pinned to their widget
-  | 'widget_payload'; // last published payload JSON (also read by the Android widget task)
+  | 'widget_payload' // last published payload JSON (also read by the Android widget task)
+  | 'active_translation'; // chosen Bible version id (may fall back to bundled)
 
 export async function getSetting(db: Sql, key: SettingKey): Promise<string | null> {
   const row = await db.getFirstAsync<{ value: string }>(`SELECT value FROM settings WHERE key = ?`, [key]);

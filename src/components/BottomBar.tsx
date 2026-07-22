@@ -6,8 +6,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../theme/ThemeContext';
 
 /**
- * The timeline's single piece of chrome: a floating pill;
- * calendar · write · insights. Everything else is whitespace.
+ * The timeline's single piece of chrome: a floating pill of three;
+ * Bible · write · insights, with the write action in the middle.
+ * Everything else is whitespace.
  */
 export function BottomBar() {
   const t = useTheme();
@@ -47,7 +48,7 @@ export function BottomBar() {
           elevation: 6,
         }}
       >
-        {side('calendar', 'Calendar', '/calendar')}
+        {side('book-open', 'Read the Bible', '/bible')}
         <Pressable
           onPress={() => router.push('/compose')}
           accessibilityRole="button"
@@ -64,7 +65,6 @@ export function BottomBar() {
         >
           <Feather name="feather" size={22} color={writeFg} />
         </Pressable>
-        {side('book-open', 'Read the Bible', '/bible')}
         {side('bar-chart-2', 'Insights', '/insights')}
       </View>
     </View>

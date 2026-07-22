@@ -94,7 +94,7 @@ export const MIGRATIONS: string[] = [
   ALTER TABLE entries ADD COLUMN longitude REAL;
   `,
 
-  // v3 — soft delete: entries linger in "Recently deleted" before purge
+  // v3, soft delete: entries linger in "Recently deleted" before purge
   `
   ALTER TABLE entries ADD COLUMN deleted_at INTEGER;
   CREATE INDEX idx_entries_deleted ON entries(deleted_at) WHERE deleted_at IS NOT NULL;

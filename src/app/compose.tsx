@@ -16,7 +16,7 @@ import { newId } from '../lib/ids';
 import { dayKey } from '../lib/insights';
 import { captureCurrentPlace } from '../lib/location';
 import { deletePhotoFile, photoUri, pickPhotos } from '../lib/photos';
-import { decodeVerseParam } from '../lib/routeParams';
+import { decodeVerseParams } from '../lib/routeParams';
 import { addAttachment, removeAttachment } from '../repo/attachments';
 import { createEntry, deleteEntry, getEntryWithMeta, setEntryMoods, updateEntry } from '../repo/entries';
 import { listPrompts, pickDailyPrompt } from '../repo/prompts';
@@ -65,7 +65,8 @@ export default function Compose() {
           });
         }
       } else {
-        const ref = decodeVerseParam(params.v);
+        // params.v may carry one ref or several (verses selected while reading)
+        const refs = decodeVerseParams(params.v);
         let body = '';
         if (params.promptId) {
           const prompt = await journal.getFirstAsync<{ text: string }>(
@@ -74,7 +75,7 @@ export default function Compose() {
           if (prompt) body = `> ${prompt.text}\n\n`;
         }
         if (cancelled) return;
-        s.start({ body, verses: ref ? [{ key: newId(), ref }] : [] });
+        s.start({ body, verses: refs.map((ref) => ({ key: newId(), ref })) });
         // daily prompt as a whisper in the placeholder, not a block on the page
         const prompts = await listPrompts(journal);
         const daily = pickDailyPrompt(prompts.filter((p) => p.category !== 'scripture'), dayKey(Date.now()));

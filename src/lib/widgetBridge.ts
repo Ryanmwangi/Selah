@@ -67,7 +67,7 @@ async function pushAndroid(payload: WidgetPayload): Promise<void> {
     widgetName: ANDROID_WIDGET_NAME,
     renderWidget: () => render(payload),
     widgetNotFound: () => {
-      // no widget placed on the home screen yet — nothing to update
+      // no widget placed on the home screen yet, nothing to update
     },
   });
 }
@@ -75,7 +75,7 @@ async function pushAndroid(payload: WidgetPayload): Promise<void> {
 /**
  * Publish a payload to the widgets. Caller persists the JSON in the settings
  * table first (so the Android task and in-app preview can read it); this then
- * pokes the OS. Safe to call anywhere — no-ops without native support.
+ * pokes the OS. Safe to call anywhere, no-ops without native support.
  */
 export async function publishWidget(payload: WidgetPayload): Promise<void> {
   if (!widgetsSupported()) return;

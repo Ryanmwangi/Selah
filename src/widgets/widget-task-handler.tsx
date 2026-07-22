@@ -1,5 +1,5 @@
 /**
- * The headless JS task Android runs to (re)draw the Selah widget — on add,
+ * The headless JS task Android runs to (re)draw the Selah widget, on add,
  * on periodic update, and on tap. It reads the last-published payload from
  * the app's SQLite settings row (the same one the bridge writes) and renders.
  *

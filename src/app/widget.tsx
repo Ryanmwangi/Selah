@@ -17,7 +17,7 @@ import { useTheme } from '../theme/ThemeContext';
 import { fonts } from '../theme/tokens';
 
 /**
- * "Home & Lock Screen" — choose what Selah leaves you where you'll see it.
+ * "Home & Lock Screen", choose what Selah leaves you where you'll see it.
  * The preview updates live; changes publish to the real widgets on save.
  */
 export default function WidgetSettings() {

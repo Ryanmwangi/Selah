@@ -10,6 +10,7 @@ import { track } from '../lib/analytics';
 import { newId } from '../lib/ids';
 import { NT, OT, type Book } from '../lib/scripture/books';
 import { formatRef, parseRef, type VerseRef } from '../lib/scripture/refs';
+import { translationAbbrev } from '../lib/scripture/translations';
 import { getPassage, verseCount } from '../repo/scripture';
 import { useDraftStore } from '../state/draftStore';
 import { useTheme } from '../theme/ThemeContext';
@@ -22,7 +23,7 @@ import { fonts } from '../theme/tokens';
  */
 export default function VersePicker() {
   const t = useTheme();
-  const { scripture } = useDb();
+  const { scripture, scriptureId } = useDb();
   const [input, setInput] = useState('');
   const [book, setBook] = useState<Book | null>(null);
   const [chapter, setChapter] = useState<number | null>(null);
@@ -32,7 +33,7 @@ export default function VersePicker() {
   const typedRef = useMemo(() => (input.trim() ? parseRef(input) : null), [input]);
 
   const { data: maxVerse } = useQuery({
-    queryKey: ['verseCount', book?.id, chapter],
+    queryKey: ['verseCount', scriptureId, book?.id, chapter],
     queryFn: () => verseCount(scripture, book!.id, chapter!),
     enabled: book != null && chapter != null,
   });
@@ -40,7 +41,7 @@ export default function VersePicker() {
   // the passage being previewed: an explicit browse selection, or the typed ref
   const previewRef = pending ?? typedRef;
   const { data: preview } = useQuery({
-    queryKey: ['pickerPreview', previewRef],
+    queryKey: ['pickerPreview', scriptureId, previewRef],
     queryFn: () => getPassage(scripture, previewRef!),
     enabled: previewRef != null,
   });
@@ -76,7 +77,7 @@ export default function VersePicker() {
               }}
             >
               <Overline style={{ color: t.gold, marginBottom: 8 }}>
-                {preview.length} {preview.length === 1 ? 'verse' : 'verses'} · WEB
+                {preview.length} {preview.length === 1 ? 'verse' : 'verses'} · {translationAbbrev(scriptureId)}
               </Overline>
               <Serif style={{ fontSize: 16, lineHeight: 27 }}>
                 {preview.map((v, i) => (

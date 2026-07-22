@@ -1,5 +1,5 @@
 /**
- * Scripture for how you feel — a curated, healthy set of passages for each
+ * Scripture for how you feel, a curated, healthy set of passages for each
  * mood. Refs use canonical book ids (see books.ts); text is loaded on demand
  * from the bundled WEB database, so this file stays small.
  *

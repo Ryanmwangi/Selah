@@ -11,6 +11,7 @@ import { Asset } from 'expo-asset';
 import { Directory, File, Paths } from 'expo-file-system';
 import * as SQLite from 'expo-sqlite';
 import { migrate } from './migrations';
+import { BUNDLED_ID, translationFileName } from '../lib/scripture/translations';
 import { seedBuiltinPrompts } from '../repo/prompts';
 import type { Sql } from './sql';
 
@@ -25,7 +26,7 @@ function wrap(db: SQLite.SQLiteDatabase): Sql {
 }
 
 let journal: Sql | null = null;
-let scripture: Sql | null = null;
+const scriptureCache = new Map<string, Sql>();
 
 export async function openJournalDb(): Promise<Sql> {
   if (journal) return journal;
@@ -37,25 +38,41 @@ export async function openJournalDb(): Promise<Sql> {
   return db;
 }
 
-const SCRIPTURE_DB = 'web.db';
+/** File name expo-sqlite uses for the bundled translation. */
+const BUNDLED_FILE = translationFileName(BUNDLED_ID); // "bible-web.db"
 
-export async function openScriptureDb(): Promise<Sql> {
-  if (scripture) return scripture;
+/**
+ * Open a translation's SQLite database by id, read-only in effect. The bundled
+ * version is copied from the app asset on first use; other versions must have
+ * been downloaded already (see lib/scripture/downloads.ts). Opened dbs are
+ * cached per id so switching versions is instant on return visits.
+ */
+export async function openScriptureDb(id: string = BUNDLED_ID): Promise<Sql> {
+  const cached = scriptureCache.get(id);
+  if (cached) return cached;
+
   const dir = new Directory(Paths.document, 'SQLite');
   if (!dir.exists) dir.create({ intermediates: true });
-  const target = new File(dir, SCRIPTURE_DB);
-  if (!target.exists) {
-    const asset = Asset.fromModule(require('@/assets/scripture/web.db'));
-    await asset.downloadAsync();
-    if (!asset.localUri) throw new Error('scripture asset failed to resolve');
-    new File(asset.localUri).copy(target);
+
+  if (id === BUNDLED_ID) {
+    const target = new File(dir, BUNDLED_FILE);
+    if (!target.exists) {
+      const asset = Asset.fromModule(require('@/assets/scripture/web.db'));
+      await asset.downloadAsync();
+      if (!asset.localUri) throw new Error('scripture asset failed to resolve');
+      new File(asset.localUri).copy(target);
+    }
+  } else if (!new File(dir, translationFileName(id)).exists) {
+    throw new Error(`translation ${id} is not downloaded`);
   }
-  scripture = wrap(await SQLite.openDatabaseAsync(SCRIPTURE_DB));
-  return scripture;
+
+  const db = wrap(await SQLite.openDatabaseAsync(translationFileName(id)));
+  scriptureCache.set(id, db);
+  return db;
 }
 
 /** Test hook / hot-reload guard. */
 export function _resetDbCache(): void {
   journal = null;
-  scripture = null;
+  scriptureCache.clear();
 }

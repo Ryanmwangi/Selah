@@ -1,12 +1,12 @@
 /**
  * Android home-screen widget UI, built with react-native-android-widget
- * (renders to native RemoteViews — this is NOT the React Native app UI).
+ * (renders to native RemoteViews, this is NOT the React Native app UI).
  *
  * This module imports the widget library at the top level, so it must only
  * ever be `require`d from a native build (the bridge and task handler do this
  * lazily). It is never evaluated in Expo Go.
  *
- * Colors are the Dawn palette held as literals — a widget can't read the
+ * Colors are the Dawn palette held as literals, a widget can't read the
  * app's theme context, and light parchment reads well on most wallpapers.
  */
 import React from 'react';

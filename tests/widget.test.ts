@@ -31,7 +31,7 @@ test('streak payload reflects state', () => {
 
   const fresh = buildWidgetPayload({ kind: 'streak', now: NOW, daysJournaled: 0, currentStreak: 0 });
   assert.match(fresh.body, /first pause/i);
-  assert.equal(fresh.accessoryShort, '—');
+  assert.equal(fresh.accessoryShort, '·');
 });
 
 test('verse payloads quote text and cite the reference', () => {
