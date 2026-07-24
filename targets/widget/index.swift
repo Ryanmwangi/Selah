@@ -1,4 +1,4 @@
-// Selah — iOS home & lock-screen widgets (WidgetKit + SwiftUI).
+// Selah: iOS home & lock-screen widgets (WidgetKit + SwiftUI).
 //
 // Reads the payload the app publishes into the shared App Group via
 // @bacons/apple-targets' ExtensionStorage (a UserDefaults suite). No network,
@@ -110,9 +110,7 @@ struct SelahHomeView: View {
             }
             Spacer(minLength: 2)
             Text(payload.body)
-                .font(payload.kind == "streak"
-                      ? .system(size: 22, weight: .semibold, design: .serif)
-                      : .system(size: compact ? 13 : 15, design: .serif))
+                .font(bodyFont)
                 .foregroundColor(.selahInk)
                 .lineLimit(compact ? 4 : 5)
                 .minimumScaleFactor(0.8)
@@ -124,6 +122,19 @@ struct SelahHomeView: View {
         }
         .padding(compact ? 12 : 16)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+    }
+
+    // Explicit `Font` return type + if/else (not a ternary) so the compiler
+    // never has to resolve leading-dot `.system(...)` overloads (one with
+    // `weight:`, one without) without a concrete contextual type, and that
+    // combination is what Swift reported as "ambiguous without a type
+    // annotation" when it was written as a ternary inline in `.font(...)`.
+    private var bodyFont: Font {
+        if payload.kind == "streak" {
+            return .system(size: 22, weight: .semibold, design: .serif)
+        } else {
+            return .system(size: compact ? 13 : 15, design: .serif)
+        }
     }
 }
 
@@ -165,7 +176,7 @@ struct SelahHomeWidget: Widget {
                           compact: false)
         }
         .configurationDisplayName("Selah")
-        .description("A verse, a note, or your rhythm — kept in view.")
+        .description("A verse, a note, or your rhythm, kept in view.")
         .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
