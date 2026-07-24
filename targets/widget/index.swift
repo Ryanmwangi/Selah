@@ -87,6 +87,17 @@ struct SelahHomeView: View {
     var compact: Bool
 
     var body: some View {
+        // .containerBackground is required by WidgetKit from iOS 17 onward, but
+        // our deployment target is 16.0 (for lock-screen accessory families), so
+        // fall back to a plain .background on 16, which renders identically.
+        if #available(iOS 17.0, *) {
+            content.containerBackground(for: .widget) { Color.selahBg }
+        } else {
+            content.background(Color.selahBg)
+        }
+    }
+
+    private var content: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text(payload.eyebrow.uppercased())
@@ -113,7 +124,6 @@ struct SelahHomeView: View {
         }
         .padding(compact ? 12 : 16)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-        .containerBackground(for: .widget) { Color.selahBg }
     }
 }
 
