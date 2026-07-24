@@ -1,0 +1,9 @@
+{
+  "name": "selah-tests",
+  "private": true,
+  "description": "Node-only test tooling, deliberately kept out of the app's root package.json so EAS/Metro never installs or compiles it. better-sqlite3 is a native addon used solely to run the app's SQL against real SQLite under `node --test`; the app itself uses expo-sqlite, never this package.",
+  "dependencies": {
+    "@types/better-sqlite3": "^7.6.11",
+    "better-sqlite3": "^12.2.0"
+  }
+}

@@ -39,10 +39,10 @@ Two moods, both typeset like a well-printed psalter:
 npm install
 npm run build:scripture   # regenerates assets/scripture/web.db (cached download)
 npm start                 # Expo dev server → iOS/Android
-npm test                  # typecheck + 44 unit/DB/crypto/scripture tests
+npm test                  # typecheck + 79 unit/DB/crypto/scripture tests
 ```
 
-Tests run the *real* repositories against real SQLite (better-sqlite3 with FTS5) and verify the crypto against `node:crypto`, no mocks of the things that matter.
+Tests run the *real* repositories against real SQLite (better-sqlite3 with FTS5) and verify the crypto against `node:crypto`, no mocks of the things that matter. `better-sqlite3` lives in `tests/package.json`, not the root one — it's a native Node addon needed only to run tests, and keeping it out of the app's own `package.json` means EAS/Metro never tries to install or compile it when building the actual app. `npm test` installs it automatically (`pretest`); nothing extra to run by hand.
 
 ## Architecture notes
 
