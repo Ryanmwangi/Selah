@@ -12,7 +12,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "app.selah.journal",
       "infoPlist": {
-        "NSFaceIDUsageDescription": "Selah uses Face ID to unlock your private journal."
+        "NSFaceIDUsageDescription": "Selah uses Face ID to unlock your private journal.",
+        "ITSAppUsesNonExemptEncryption": false
       },
       "entitlements": {
         "com.apple.security.application-groups": [
@@ -31,6 +32,12 @@
       "predictiveBackGestureEnabled": false,
       "blockedPermissions": [
         "android.permission.RECORD_AUDIO"
+      ],
+      "permissions": [
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
       ]
     },
     "web": {
@@ -107,7 +114,28 @@
       "typedRoutes": true
     },
     "extra": {
-      "bibleBaseUrl": ""
+      "bibleBaseUrl": "",
+      "router": {},
+      "eas": {
+        "build": {
+          "experimental": {
+            "ios": {
+              "appExtensions": [
+                {
+                  "bundleIdentifier": "app.selah.journal.widget",
+                  "targetName": "SelahWidget",
+                  "entitlements": {
+                    "com.apple.security.application-groups": [
+                      "group.app.selah.journal"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "projectId": "1d8755a1-a704-4724-92db-82729c5960c5"
+      }
     }
   }
 }
