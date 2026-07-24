@@ -17,19 +17,21 @@ test('default preference and bundled fallback both exist', () => {
   assert.ok(getTranslation(BUNDLED_ID), 'BUNDLED_ID missing from registry');
 });
 
-test('copyrighted versions are never marked distributable', () => {
-  const nkjv = getTranslation('NKJV')!;
-  assert.equal(nkjv.distributable, false);
-  assert.equal(nkjv.bundled, false);
-  // any non-distributable version must not be bundled
+test('launch registry is public-domain / freely licensed only', () => {
+  // no copyrighted, non-distributable version ships at launch
   for (const tr of TRANSLATIONS) {
+    assert.equal(tr.distributable, true, `${tr.id} is not distributable`);
     if (!tr.distributable) assert.equal(tr.bundled, false, `${tr.id} is bundled but not distributable`);
   }
 });
 
+test('default preference is the bundled, license-free version', () => {
+  assert.equal(DEFAULT_ID, BUNDLED_ID);
+});
+
 test('file name is derived and stable', () => {
   assert.equal(translationFileName('WEB'), 'bible-web.db');
-  assert.equal(translationFileName('NKJV'), 'bible-nkjv.db');
+  assert.equal(translationFileName('KJV'), 'bible-kjv.db');
 });
 
 test('abbrev lookup falls back to the id', () => {

@@ -34,7 +34,7 @@ Payload is refreshed on app launch, after every entry save, and when you change 
 
 ## Enabling it (one-time)
 
-1. **Set your Apple Team ID** in `app.json` → `plugins` → `@bacons/apple-targets` (`REPLACE_WITH_APPLE_TEAM_ID`).
+1. ~~Set your Apple Team ID~~ done (`app.json` → `plugins` → `@bacons/apple-targets`).
 2. **Create the App Group** `group.app.selah.journal` in your Apple Developer account and enable it for the app id `app.selah.journal`. It's already declared in `app.json` (`ios.entitlements`) and `targets/widget/expo-target.config.js`.
 3. **Prebuild + build:**
    ```bash

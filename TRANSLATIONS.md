@@ -11,21 +11,22 @@ and can download others on demand so the app download stays small.
 | WEB (World English Bible) | Public domain | Yes (offline default) | n/a |
 | KJV, ASV | Public domain | No | Yes, when hosted |
 | BSB (Berean Standard) | Freely licensed, attribution | No | Yes, when hosted |
-| **NKJV** (default preference) | **Copyrighted (Thomas Nelson)** | **No** | Only from a licensed source |
 
-The user's chosen version is a preference. Until it is downloaded, Selah reads
-the bundled WEB so there is always something to read. `NKJV` is set as the
-default *preference*; because it is copyrighted it is never bundled or hosted
-by us and shows a lock until a licensed source is configured.
+At launch, every listed version is public domain or freely licensed, so every
+download is free and requires no license. WEB is both the bundled version and
+the default preference, so scripture works fully offline the moment the app
+opens.
 
 ## Licensing (read before adding a version)
 
 Only distribute text you have the right to distribute. Public-domain versions
 (WEB, KJV, ASV) and freely licensed ones (BSB, with attribution) are fine to
-host. **NKJV, ESV, NIV and most modern translations are copyrighted** and must
-not be bundled or redistributed. To offer them, license the text or use a
-licensed Bible API (for example API.Bible), and point Selah at your own hosted,
-licensed database. This rule is recorded in `CLAUDE.md`.
+host. **Copyrighted translations (NKJV, ESV, NIV, and most modern versions)
+must not be bundled or redistributed.** To add one later, license the text or
+use a licensed Bible API (for example API.Bible), add a registry row with
+`distributable: false`, and point Selah at your own hosted, licensed database;
+the app already renders a lock icon for any non-distributable, not-yet-installed
+version. This rule is recorded in `CLAUDE.md`.
 
 ## Hosting downloadable versions
 

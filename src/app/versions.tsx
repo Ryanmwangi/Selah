@@ -139,9 +139,8 @@ export default function Versions() {
         <View style={{ backgroundColor: t.surfaceAlt, borderRadius: 12, padding: 14, marginTop: 10, gap: 4 }}>
           <Serif style={{ fontSize: 14.5, color: t.ink }}>About versions</Serif>
           <Ui style={{ color: t.inkFaint }}>
-            Public-domain versions can be downloaded freely. Copyrighted versions like NKJV need a licensed source; a
-            lock means no download is available yet. Your choice is remembered, and Selah reads the included version
-            until your version is downloaded.
+            Every version here is public domain or freely licensed, so downloads are always free. Your choice is
+            remembered, and Selah reads the included version until your chosen one finishes downloading.
           </Ui>
         </View>
       </ScrollView>

@@ -5,10 +5,11 @@
  * stays small and scripture works offline immediately. Every other version is
  * fetched on demand into local storage and read fully offline afterwards.
  *
- * Licensing is a hard rule (see CLAUDE.md): only public-domain or freely
- * licensed translations may be hosted for download. Copyrighted versions
- * (NKJV, ESV, NIV, ...) are listed so the user can *select* them, but their
- * text must come from a licensed source the operator supplies, never from us.
+ * Launch scope is public-domain / freely licensed versions only, no
+ * copyrighted translation (NKJV, ESV, NIV, ...) is listed or downloadable.
+ * See CLAUDE.md: only distribute text we have the right to distribute. A
+ * licensed version can be added later by appending a row with
+ * `distributable: false` and a licensed download source.
  */
 export interface Translation {
   id: string; // stable, uppercase, also the remote file stem
@@ -26,13 +27,9 @@ export interface Translation {
 export const BUNDLED_ID = 'WEB';
 
 /** The user's preferred default. Effective version falls back to bundled until installed. */
-export const DEFAULT_ID = 'NKJV';
+export const DEFAULT_ID = BUNDLED_ID;
 
 export const TRANSLATIONS: Translation[] = [
-  {
-    id: 'NKJV', name: 'New King James Version', abbrev: 'NKJV',
-    license: 'Thomas Nelson, licensed', distributable: false, bundled: false, approxBytes: 4_600_000,
-  },
   {
     id: 'WEB', name: 'World English Bible', abbrev: 'WEB',
     license: 'Public domain', distributable: true, bundled: true, approxBytes: 4_505_600,

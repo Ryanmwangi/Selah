@@ -98,7 +98,7 @@
       [
         "@bacons/apple-targets",
         {
-          "appleTeamId": "REPLACE_WITH_APPLE_TEAM_ID"
+          "appleTeamId": "Y2DS94HLY8"
         }
       ],
       "@react-native-community/datetimepicker"
