@@ -54,4 +54,4 @@ If this policy changes, the effective date above will be updated and the new ver
 
 ## Contact
 
-Questions about this policy or Selah's privacy practices: **forensicdiscoverygmbh@gmail.com**
+Questions about this policy or Selah's privacy practices: **ryannganga6@gmail.com**

@@ -47,4 +47,4 @@ Selah is a private journal. The security posture is **local-first, zero-knowledg
 - The Markdown export shares plaintext by the OS share sheet; that is the user's explicit choice.
 
 ## Reporting
-Security issue? Email forensicdiscoverygmbh@gmail.com.
+Security issue? Email ryannganga6@gmail.com.
