@@ -171,7 +171,7 @@ struct SelahAccessoryView: View {
 
 struct SelahHomeWidget: Widget {
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: "SelahHomeWidget", provider: SelahProvider) { entry in
+        StaticConfiguration(kind: "SelahHomeWidget", provider: SelahProvider()) { entry in
             SelahHomeView(payload: entry.payload,
                           compact: false)
         }
@@ -183,7 +183,7 @@ struct SelahHomeWidget: Widget {
 
 struct SelahLockWidget: Widget {
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: "SelahLockWidget", provider: SelahProvider) { entry in
+        StaticConfiguration(kind: "SelahLockWidget", provider: SelahProvider()) { entry in
             SelahAccessoryView(payload: entry.payload)
         }
         .configurationDisplayName("Selah")
