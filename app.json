@@ -136,6 +136,12 @@
         },
         "projectId": "1d8755a1-a704-4724-92db-82729c5960c5"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/1d8755a1-a704-4724-92db-82729c5960c5"
     }
   }
 }
