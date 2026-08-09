@@ -4,15 +4,13 @@
 
 Every entry can be linked to a verse, so your reflections become a searchable record of **"what God said in this season."** Offline-first, private by default: no account, no server, your words never leave your phone.
 
-Built per [../BUILD.md](../BUILD.md), phases 0–6 core (M1–M3 complete: journaling, scripture-linking, search, prompts, app lock).
-
 ## Design language
 
-Two moods, both typeset like a well-printed psalter:
-- **Dawn**, warm parchment, dark ink, ember accents, gold-leaf details.
-- **Vigil**, candlelit night ink for late reflection.
+Two moods, calm and minimal, whitespace doing the composing:
+- **Dawn**, whisper-lavender paper, soft plum ink, a muted lavender accent, sage for verse numbers and pins.
+- **Dusk**, a calm muted-indigo night, the same accent luminous against dark.
 
-**Fraunces** carries the journal's voice (titles, entries, scripture); **Inter** whispers the UI. The brand mark is the caesura **‖**, a pause, held (the ember diamond).
+**Lora** carries the journal's voice (titles, entries, scripture, reading feels the same whether it's your words or the Bible's); **Nunito** whispers the UI. The brand mark is the caesura **‖**, a pause, held.
 
 ## What's inside
 
@@ -52,11 +50,12 @@ Tests run the *real* repositories against real SQLite (better-sqlite3 with FTS5)
 - `src/lib/crypto/*`, SHA-256/HMAC/PBKDF2/AES-CTR envelope, Phase-7-ready.
 - `scripts/build-scripture-db.mjs`, WEB JSON → compact SQLite asset.
 
-## Ship (Phase 6)
+## Ship
 
 ```bash
-npx eas build --platform all
-npx eas submit
+eas build --profile production --platform all
+eas submit --platform ios
+eas submit --platform android
 ```
 
-Store metadata still needed: screenshots, listing copy, privacy policy URL.
+Submitted to both the App Store and Google Play. A brand-new Google Play developer account must run a closed test with 12+ opted-in testers for 14 continuous days before Google allows a first production release, that clock, not the app, is what's still running.
