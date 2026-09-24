@@ -74,8 +74,11 @@ export function EntryCard({ entry, onPress }: { entry: EntryWithMeta; onPress: (
               />
             ) : null,
           )}
-          {entry.attachments.length > 0 ? (
+          {entry.attachments.some((a) => a.type !== 'audio') ? (
             <Feather name="image" size={11.5} color={t.inkFaint} />
+          ) : null}
+          {entry.attachments.some((a) => a.type === 'audio') ? (
+            <Feather name="mic" size={11.5} color={t.inkFaint} />
           ) : null}
           {entry.place_name ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>

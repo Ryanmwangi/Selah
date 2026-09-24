@@ -8,11 +8,14 @@
  * Keep the group id in sync with app.json > ios.entitlements and the suite
  * name in index.swift.
  */
+const group =
+  process.env.APP_VARIANT === 'development' ? 'group.app.selah.journal.dev' : 'group.app.selah.journal';
+
 module.exports = (config) => ({
   type: 'widget',
   name: 'SelahWidget',
   deploymentTarget: '16.0', // lock-screen accessory widgets need iOS 16+
   entitlements: {
-    'com.apple.security.application-groups': ['group.app.selah.journal'],
+    'com.apple.security.application-groups': [group],
   },
 });

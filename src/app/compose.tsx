@@ -1,11 +1,13 @@
 import { Feather } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
+import { RecordingPresets, requestRecordingPermissionsAsync, setAudioModeAsync, useAudioRecorder, useAudioRecorderState } from 'expo-audio';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { IconButton } from '../components/IconButton';
+import { VoiceNote } from '../components/VoiceNote';
 import { MoodPicker } from '../components/MoodPicker';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { Overline, Ui } from '../components/Typ';
@@ -16,6 +18,7 @@ import { newId } from '../lib/ids';
 import { dayKey } from '../lib/insights';
 import { captureCurrentPlace } from '../lib/location';
 import { deletePhotoFile, photoUri, pickPhotos } from '../lib/photos';
+import { formatDuration, storeRecording } from '../lib/voice';
 import { decodeVerseParams } from '../lib/routeParams';
 import { addAttachment, removeAttachment } from '../repo/attachments';
 import { createEntry, deleteEntry, getEntryWithMeta, setEntryMoods, updateEntry } from '../repo/entries';
@@ -56,8 +59,11 @@ export default function Compose() {
             moods: existing.moods,
             verses: existing.verseLinks.map((l) => ({ key: l.id, ref: linkToRef(l) })),
             tagNames: existing.tags.map((tag) => tag.name),
-            photos: existing.attachments.map((a) => ({
+            photos: existing.attachments.filter((a) => a.type !== 'audio').map((a) => ({
               id: a.id, filename: a.filename, width: a.width, height: a.height, saved: true,
+            })),
+            voices: existing.attachments.filter((a) => a.type === 'audio').map((a) => ({
+              id: a.id, filename: a.filename, durationMs: a.duration_ms ?? 0, saved: true,
             })),
             place: existing.place_name
               ? { placeName: existing.place_name, latitude: existing.latitude ?? 0, longitude: existing.longitude ?? 0 }
@@ -93,7 +99,7 @@ export default function Compose() {
   const persist = useCallback(async () => {
     const s = useDraftStore.getState();
     const hasContent =
-      s.title.trim() !== '' || s.body.trim() !== '' || s.verses.length > 0 || s.photos.length > 0;
+      s.title.trim() !== '' || s.body.trim() !== '' || s.verses.length > 0 || s.photos.length > 0 || s.voices.length > 0;
     if (!s.entryId && !hasContent) return;
     let id = s.entryId;
     const now = Date.now();
@@ -122,6 +128,12 @@ export default function Compose() {
       });
       p.saved = true;
     }
+    for (const v of s.voices.filter((x) => !x.saved)) {
+      await addAttachment(journal, {
+        id: v.id, entryId: id, filename: v.filename, type: 'audio', durationMs: v.durationMs, createdAt: now,
+      });
+      v.saved = true;
+    }
     await queryClient.invalidateQueries();
     track('entry_saved');
     // keep a streak/verse widget current after each save (no-op without a widget)
@@ -145,7 +157,7 @@ export default function Compose() {
     if (timer.current) clearTimeout(timer.current);
     const s = useDraftStore.getState();
     const empty =
-      !s.title.trim() && !s.body.trim() && s.verses.length === 0 && s.photos.length === 0;
+      !s.title.trim() && !s.body.trim() && s.verses.length === 0 && s.photos.length === 0 && s.voices.length === 0;
     if (!empty || s.entryId) await persist();
     if (s.entryId && empty) {
       await deleteEntry(journal, s.entryId);
@@ -166,6 +178,58 @@ export default function Compose() {
 
   const removePhoto = async (id: string, filename: string, saved: boolean) => {
     useDraftStore.getState().removePhoto(id);
+    if (saved) await removeAttachment(journal, id);
+    deletePhotoFile(filename);
+    scheduleSave();
+  };
+
+  // ── voice notes ────────────────────────────────────────────────────────
+  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const recState = useAudioRecorderState(recorder, 250);
+  const [recording, setRecording] = useState(false);
+
+  const startRecording = async () => {
+    try {
+      const perm = await requestRecordingPermissionsAsync();
+      if (!perm.granted) {
+        Alert.alert('Microphone off', 'Allow microphone access in Settings to record voice notes.');
+        return;
+      }
+      await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
+      await recorder.prepareToRecordAsync();
+      recorder.record();
+      setRecording(true);
+    } catch {
+      Alert.alert('Could not record', 'Something went wrong starting the recording.');
+    }
+  };
+
+  const stopRecording = async () => {
+    setRecording(false);
+    try {
+      const ms = recorder.getStatus().durationMillis || recState.durationMillis;
+      await recorder.stop();
+      await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true });
+      const voice = storeRecording(recorder.uri, ms);
+      if (voice) {
+        useDraftStore.getState().addVoice({ ...voice, saved: false });
+        scheduleSave();
+      }
+    } catch {
+      Alert.alert('Could not save', 'The recording could not be saved.');
+    }
+  };
+
+  // a recording in progress when leaving the screen is discarded, not half-saved
+  useEffect(
+    () => () => {
+      if (recorder.isRecording) void recorder.stop().catch(() => {});
+    },
+    [recorder],
+  );
+
+  const removeVoice = async (id: string, filename: string, saved: boolean) => {
+    useDraftStore.getState().removeVoice(id);
     if (saved) await removeAttachment(journal, id);
     deletePhotoFile(filename);
     scheduleSave();
@@ -306,6 +370,22 @@ export default function Compose() {
           </ScrollView>
         ) : null}
 
+        {draft.voices.map((v) => (
+          <VoiceNote
+            key={v.id}
+            filename={v.filename}
+            durationMs={v.durationMs}
+            onRemove={() => void removeVoice(v.id, v.filename, v.saved)}
+          />
+        ))}
+
+        {recording ? (
+          <View accessibilityLiveRegion="polite" style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: t.accent }} />
+            <Ui style={{ color: t.inkSoft }}>Recording · {formatDuration(recState.durationMillis)}</Ui>
+          </View>
+        ) : null}
+
         {draft.place ? (
           <Pressable
             onPress={toggleLocation}
@@ -374,6 +454,12 @@ export default function Compose() {
       >
         {actionIcon('book', 'Attach scripture', () => router.push('/verse-picker'), draft.verses.length > 0)}
         {actionIcon('image', 'Attach photos', () => void attachPhotos(), draft.photos.length > 0)}
+        {actionIcon(
+          recording ? 'square' : 'mic',
+          recording ? 'Stop recording' : 'Record a voice note',
+          () => void (recording ? stopRecording() : startRecording()),
+          recording || draft.voices.length > 0,
+        )}
         {actionIcon(
           'map-pin',
           locating ? 'Finding your place…' : draft.place ? 'Remove location' : 'Note location',

@@ -17,7 +17,7 @@ Two moods, calm and minimal, whitespace doing the composing:
 | Area | Detail |
 |---|---|
 | Capture | Open → write → done. Autosaved as you type; empty entries evaporate. Markdown subset (**bold**, *italic*, lists, quotes, headings). Daily prompt appears as a gentle placeholder, never a block. |
-| Moments | Attach **photos** (copied into the app's private sandbox, no library references), note **where you were** (tap-to-capture, tap-to-remove), and mark **multiple moods** per entry. |
+| Moments | Attach **photos** (copied into the app's private sandbox, no library references), record **voice notes** (on-device audio, played back in the entry), note **where you were** (tap-to-capture, tap-to-remove), and mark **multiple moods** per entry. |
 | Scripture | Full Bible bundled offline (public-domain **WEB**, 31,103 verses, 4.5MB). **Read any passage** from the Bible tab: browse book → chapter, read with prev/next chapter navigation, reflect on what you read. Attach verses to entries by typing "Ps 46:10" (live preview) or browsing. Verses render inline, typeset with sage verse numbers, in the app's own reading type. |
 | Versions | Choose your translation and **download versions to read offline** (Settings → Bible). Ships one public-domain version (WEB) so the app stays small and works offline immediately; more public-domain versions download on demand, free, no license needed. See [TRANSLATIONS.md](./TRANSLATIONS.md). |
 | For how you feel | 15 moods, each with a **curated, healthy set of passages** (Scripture for the anxious, weary, grateful, tempted…). Reachable from the Bible tab or while choosing a mood on an entry. Read the whole chapter or start a reflection from any verse. |

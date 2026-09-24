@@ -99,6 +99,11 @@ export const MIGRATIONS: string[] = [
   ALTER TABLE entries ADD COLUMN deleted_at INTEGER;
   CREATE INDEX idx_entries_deleted ON entries(deleted_at) WHERE deleted_at IS NOT NULL;
   `,
+
+  // v4, voice notes: attachments of type 'audio' carry a duration
+  `
+  ALTER TABLE attachments ADD COLUMN duration_ms INTEGER;
+  `,
 ];
 
 export async function migrate(db: Sql): Promise<void> {

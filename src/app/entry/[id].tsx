@@ -13,6 +13,7 @@ import { Display, Overline, Ui } from '../../components/Typ';
 import { VerseCard } from '../../components/VerseCard';
 import { useDb } from '../../db/DbProvider';
 import { track } from '../../lib/analytics';
+import { VoiceNote } from '../../components/VoiceNote';
 import { photoUri } from '../../lib/photos';
 import { encodeVerseParam } from '../../lib/routeParams';
 import {
@@ -156,9 +157,13 @@ export default function EntryReader() {
 
         <MarkdownView body={entry.body} />
 
-        {entry.attachments.length > 0 ? (
+        {entry.attachments.filter((a) => a.type === 'audio').map((a) => (
+          <VoiceNote key={a.id} filename={a.filename} durationMs={a.duration_ms} />
+        ))}
+
+        {entry.attachments.some((a) => a.type !== 'audio') ? (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
-            {entry.attachments.map((a) => {
+            {entry.attachments.filter((a) => a.type !== 'audio').map((a) => {
               const ratio = a.width && a.height ? a.width / a.height : 1;
               return (
                 <Image

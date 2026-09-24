@@ -22,6 +22,7 @@ export interface Attachment {
   filename: string;
   width: number | null;
   height: number | null;
+  duration_ms: number | null;
   created_at: number;
 }
 

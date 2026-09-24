@@ -23,7 +23,10 @@ export function exportMarkdown(entries: EntryWithMeta[], now: Date): string {
     if (e.place_name) meta.push(`at ${e.place_name}`);
     if (e.tags.length) meta.push(`tags: ${e.tags.map((t) => t.name).join(', ')}`);
     if (e.verseLinks.length) meta.push(e.verseLinks.map((l) => formatRef(linkToRef(l))).join('; '));
-    if (e.attachments.length) meta.push(`${e.attachments.length} photo${e.attachments.length > 1 ? 's' : ''}`);
+    const photos = e.attachments.filter((a) => a.type !== 'audio').length;
+    const voice = e.attachments.length - photos;
+    if (photos) meta.push(`${photos} photo${photos > 1 ? 's' : ''}`);
+    if (voice) meta.push(`${voice} voice note${voice > 1 ? 's' : ''}`);
     lines.push(`*${meta.join(' · ')}*`, '');
     lines.push(e.body.trim(), '');
   }

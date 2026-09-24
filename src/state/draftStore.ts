@@ -19,6 +19,13 @@ export interface DraftPhoto {
   saved: boolean;
 }
 
+export interface DraftVoice {
+  id: string;
+  filename: string;
+  durationMs: number;
+  saved: boolean;
+}
+
 export interface DraftPlace {
   placeName: string;
   latitude: number;
@@ -33,6 +40,7 @@ interface DraftState {
   verses: DraftVerse[];
   tagNames: string[];
   photos: DraftPhoto[];
+  voices: DraftVoice[];
   place: DraftPlace | null;
   dirty: boolean;
   start(partial?: Partial<Omit<DraftState, 'dirty'>>): void;
@@ -45,6 +53,8 @@ interface DraftState {
   removeTag(name: string): void;
   addPhotos(photos: DraftPhoto[]): void;
   removePhoto(id: string): void;
+  addVoice(v: DraftVoice): void;
+  removeVoice(id: string): void;
   setPlace(place: DraftPlace | null): void;
   clear(): void;
 }
@@ -52,7 +62,7 @@ interface DraftState {
 const EMPTY = {
   entryId: null, title: '', body: '', moods: [] as string[],
   verses: [] as DraftVerse[], tagNames: [] as string[],
-  photos: [] as DraftPhoto[], place: null as DraftPlace | null, dirty: false,
+  photos: [] as DraftPhoto[], voices: [] as DraftVoice[], place: null as DraftPlace | null, dirty: false,
 };
 
 export const useDraftStore = create<DraftState>((set) => ({
@@ -76,6 +86,8 @@ export const useDraftStore = create<DraftState>((set) => ({
   removeTag: (name) => set((s) => ({ tagNames: s.tagNames.filter((t) => t !== name), dirty: true })),
   addPhotos: (photos) => set((s) => ({ photos: [...s.photos, ...photos], dirty: true })),
   removePhoto: (id) => set((s) => ({ photos: s.photos.filter((p) => p.id !== id), dirty: true })),
+  addVoice: (v) => set((s) => ({ voices: [...s.voices, v], dirty: true })),
+  removeVoice: (id) => set((s) => ({ voices: s.voices.filter((v) => v.id !== id), dirty: true })),
   setPlace: (place) => set({ place, dirty: true }),
   clear: () => set({ ...EMPTY }),
 }));

@@ -14,6 +14,7 @@ Selah does not have a server. There is no account, no sign-up, and no sync. Ever
 |---|---|---|
 | Journal entries, titles, tags, moods | Local database on your device | Never |
 | Photos you attach | Local, private app storage on your device | Never |
+| Voice notes you record | Local, private app storage on your device | Never |
 | Location you choose to attach to an entry | Local database on your device | Never |
 | Scripture reading, verse links, search history | Local database on your device | Never |
 | App lock PIN, biometric authorization | Your device's secure hardware storage (iOS Keychain / Android Keystore) | Never |
@@ -27,6 +28,7 @@ Every permission below is optional and only requested at the moment you use the 
 
 - **Face ID / Touch ID / fingerprint** — to lock the app so only you can open your journal. Handled entirely by your device's operating system; Selah never sees your biometric data, only a yes/no result.
 - **Photo library** — only when you choose to attach a photo to an entry. The photo is copied into the app's own private storage; Selah does not browse or access your library beyond the photo you pick.
+- **Microphone** — only when you tap the record button to add a voice note to an entry. Recording happens only while you see the recording indicator; the audio is saved into the app's own private storage and never transmitted or transcribed.
 - **Location** — only when you tap the location button while writing an entry. Selah does not track your location in the background or at any other time.
 - **Notifications** — to send you a local daily reflection reminder at a time you choose. This notification is generated on your device; no data is sent anywhere to trigger it.
 
@@ -37,7 +39,7 @@ Scripture is bundled with the app or downloaded (public-domain translations only
 ## Data you control
 
 - **Export** — you can export your entire journal as a Markdown file at any time and share or save it however you like.
-- **Delete** — deleting an entry moves it to "Recently Deleted" for 7 days (so you can recover mistakes), after which it is permanently erased from your device, including any attached photos.
+- **Delete** — deleting an entry moves it to "Recently Deleted" for 7 days (so you can recover mistakes), after which it is permanently erased from your device, including any attached photos and voice notes.
 - **Archive** — archiving simply hides an entry from your main timeline; it stays fully on your device and is never sent anywhere.
 
 ## Children's privacy

@@ -31,7 +31,7 @@ export async function loadInsights(db: Sql, now: number, weeklyGoal: number): Pr
     `SELECT t.name FROM tags t JOIN entry_tags et ON et.tag_id = t.id
      JOIN entries e ON e.id = et.entry_id WHERE e.is_archived = 0 AND e.deleted_at IS NULL`,
   );
-  const photoRow = await db.getFirstAsync<{ n: number }>(`SELECT COUNT(*) AS n FROM attachments`);
+  const photoRow = await db.getFirstAsync<{ n: number }>(`SELECT COUNT(*) AS n FROM attachments WHERE type = 'photo'`);
 
   const keys = rows.map((r) => dayKey(r.created_at));
   const journaledDayKeys = new Set(keys);
