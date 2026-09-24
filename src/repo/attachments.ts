@@ -5,14 +5,19 @@ export async function addAttachment(
   db: Sql,
   a: {
     id: string; entryId: string; filename: string; type?: 'photo' | 'audio';
-    width?: number | null; height?: number | null; durationMs?: number | null; createdAt: number;
+    width?: number | null; height?: number | null; durationMs?: number | null; label?: string | null;
+    createdAt: number;
   },
 ): Promise<void> {
   await db.runAsync(
-    `INSERT INTO attachments (id, entry_id, type, filename, width, height, duration_ms, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    [a.id, a.entryId, a.type ?? 'photo', a.filename, a.width ?? null, a.height ?? null, a.durationMs ?? null, a.createdAt],
+    `INSERT INTO attachments (id, entry_id, type, filename, width, height, duration_ms, label, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [a.id, a.entryId, a.type ?? 'photo', a.filename, a.width ?? null, a.height ?? null, a.durationMs ?? null, a.label ?? null, a.createdAt],
   );
+}
+
+export async function setAttachmentLabel(db: Sql, id: string, label: string | null): Promise<void> {
+  await db.runAsync(`UPDATE attachments SET label = ? WHERE id = ?`, [label?.trim() || null, id]);
 }
 
 export async function removeAttachment(db: Sql, id: string): Promise<void> {

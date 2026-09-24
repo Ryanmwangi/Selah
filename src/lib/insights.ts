@@ -6,6 +6,8 @@
  * caller, so time zones behave the way a human journaling at 23:50 expects.
  */
 
+import { stripVoiceMarkers } from './bodyBlocks';
+
 /** Local-time day key. */
 export function dayKey(ts: number): string {
   const d = new Date(ts);
@@ -62,7 +64,7 @@ export function computeStreaks(journaledDays: Iterable<string>, today: string): 
 /** Word count of a markdown body (formatting stripped enough for counting). */
 export function wordCount(body: string): number {
   // \p{M} keeps combining marks (e.g. Hebrew niqqud) from splitting a word
-  const words = body.replace(/[#*>\-]/g, ' ').match(/[\p{L}\p{M}\p{N}'’]+/gu);
+  const words = stripVoiceMarkers(body).replace(/[#*>\-]/g, ' ').match(/[\p{L}\p{M}\p{N}'’]+/gu);
   return words ? words.length : 0;
 }
 

@@ -4,6 +4,8 @@
  * styled <Text>. No HTML, no links-with-JS, no images, journals are text.
  */
 
+import { stripVoiceMarkers } from './bodyBlocks';
+
 export type Inline =
   | { kind: 'text'; text: string }
   | { kind: 'bold'; text: string }
@@ -56,7 +58,7 @@ export function parseMarkdown(body: string): Block[] {
 
 /** Plain-text snippet for timeline cards: markdown stripped, whitespace collapsed. */
 export function snippet(body: string, max = 160): string {
-  const plain = body
+  const plain = stripVoiceMarkers(body)
     .replace(/^#{1,2}\s+/gm, '')
     .replace(/^\s*[-*]\s+/gm, '')
     .replace(/^\s*>\s?/gm, '')

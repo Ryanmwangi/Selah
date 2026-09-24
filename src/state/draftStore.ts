@@ -23,6 +23,7 @@ export interface DraftVoice {
   id: string;
   filename: string;
   durationMs: number;
+  label: string | null;
   saved: boolean;
 }
 
@@ -55,6 +56,7 @@ interface DraftState {
   removePhoto(id: string): void;
   addVoice(v: DraftVoice): void;
   removeVoice(id: string): void;
+  renameVoice(id: string, label: string): void;
   setPlace(place: DraftPlace | null): void;
   clear(): void;
 }
@@ -88,6 +90,8 @@ export const useDraftStore = create<DraftState>((set) => ({
   removePhoto: (id) => set((s) => ({ photos: s.photos.filter((p) => p.id !== id), dirty: true })),
   addVoice: (v) => set((s) => ({ voices: [...s.voices, v], dirty: true })),
   removeVoice: (id) => set((s) => ({ voices: s.voices.filter((v) => v.id !== id), dirty: true })),
+  renameVoice: (id, label) =>
+    set((s) => ({ voices: s.voices.map((v) => (v.id === id ? { ...v, label: label.trim() || null } : v)), dirty: true })),
   setPlace: (place) => set({ place, dirty: true }),
   clear: () => set({ ...EMPTY }),
 }));

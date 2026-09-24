@@ -4,7 +4,7 @@ import { format } from 'date-fns';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import React from 'react';
-import { Alert, ScrollView, View } from 'react-native';
+import { Alert, Pressable, ScrollView, View } from 'react-native';
 import { EmptyState } from '../../components/EmptyState';
 import { IconButton } from '../../components/IconButton';
 import { MarkdownView } from '../../components/MarkdownView';
@@ -14,6 +14,7 @@ import { VerseCard } from '../../components/VerseCard';
 import { useDb } from '../../db/DbProvider';
 import { track } from '../../lib/analytics';
 import { VoiceNote } from '../../components/VoiceNote';
+import { parseBody, voiceMarker } from '../../lib/bodyBlocks';
 import { photoUri } from '../../lib/photos';
 import { encodeVerseParam } from '../../lib/routeParams';
 import {
@@ -47,6 +48,8 @@ export default function EntryReader() {
   const d = new Date(entry.created_at);
   const moodLabels = entry.moods.map((m) => MOOD_META[m]?.label).filter(Boolean).join(' · ');
   const invalidate = () => queryClient.invalidateQueries();
+  // tapping the writing goes straight to editing, cursor in the text
+  const editHere = () => router.push({ pathname: '/compose', params: { id: entry.id, focus: '1' } });
 
   const confirmDelete = () =>
     Alert.alert(
@@ -155,11 +158,24 @@ export default function EntryReader() {
           );
         })}
 
-        <MarkdownView body={entry.body} />
+        {parseBody(entry.body).map((b, i) => {
+          if (b.kind === 'text') {
+            return b.text.trim() ? (
+              <Pressable key={`t${i}`} onPress={editHere} accessibilityRole="button" accessibilityLabel="Edit entry">
+                <MarkdownView body={b.text} />
+              </Pressable>
+            ) : null;
+          }
+          const a = entry.attachments.find((x) => x.id === b.id);
+          return a ? <VoiceNote key={a.id} filename={a.filename} durationMs={a.duration_ms} label={a.label} /> : null;
+        })}
 
-        {entry.attachments.filter((a) => a.type === 'audio').map((a) => (
-          <VoiceNote key={a.id} filename={a.filename} durationMs={a.duration_ms} />
-        ))}
+        {/* voice notes saved before inline placement have no marker in the body */}
+        {entry.attachments
+          .filter((a) => a.type === 'audio' && !entry.body.includes(voiceMarker(a.id)))
+          .map((a) => (
+            <VoiceNote key={a.id} filename={a.filename} durationMs={a.duration_ms} label={a.label} />
+          ))}
 
         {entry.attachments.some((a) => a.type !== 'audio') ? (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
@@ -187,6 +203,8 @@ export default function EntryReader() {
             ))}
           </View>
         ) : null}
+        {/* empty space under the entry also starts editing */}
+        <Pressable onPress={editHere} accessibilityLabel="Edit entry" style={{ minHeight: 60 }} />
       </ScrollView>
     </View>
   );

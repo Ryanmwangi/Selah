@@ -23,6 +23,7 @@ export interface Attachment {
   width: number | null;
   height: number | null;
   duration_ms: number | null;
+  label: string | null;
   created_at: number;
 }
 

@@ -104,6 +104,11 @@ export const MIGRATIONS: string[] = [
   `
   ALTER TABLE attachments ADD COLUMN duration_ms INTEGER;
   `,
+
+  // v5, voice notes can be renamed
+  `
+  ALTER TABLE attachments ADD COLUMN label TEXT;
+  `,
 ];
 
 export async function migrate(db: Sql): Promise<void> {
