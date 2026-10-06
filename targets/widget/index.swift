@@ -10,7 +10,9 @@
 import WidgetKit
 import SwiftUI
 
-private let appGroup = "group.app.selah.journal"
+// The app writes to both (see src/lib/widgetBridge.ts); only the one this
+// build is entitled to is actually shared, so read them in turn.
+private let appGroups = ["group.app.selah.journal", "group.app.selah.journal.dev"]
 private let payloadKey = "selahWidgetPayload"
 
 // MARK: - Model
@@ -23,6 +25,33 @@ struct SelahPayload: Decodable {
     var accessoryShort: String
     var updatedAt: Double
 
+    init(kind: String, eyebrow: String, body: String, footer: String,
+         accessoryShort: String, updatedAt: Double) {
+        self.kind = kind
+        self.eyebrow = eyebrow
+        self.body = body
+        self.footer = footer
+        self.accessoryShort = accessoryShort
+        self.updatedAt = updatedAt
+    }
+
+    // Lenient: a missing or oddly typed field falls back instead of failing the
+    // whole decode (which would drop the user's content for the fallback).
+    private enum CodingKeys: String, CodingKey {
+        case kind, eyebrow, body, footer, accessoryShort, updatedAt
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        body = try c.decode(String.self, forKey: .body)
+        kind = (try? c.decode(String.self, forKey: .kind)) ?? "note"
+        eyebrow = (try? c.decode(String.self, forKey: .eyebrow)) ?? "Selah"
+        footer = (try? c.decode(String.self, forKey: .footer)) ?? "Selah"
+        accessoryShort = (try? c.decode(String.self, forKey: .accessoryShort)) ?? "Selah"
+        updatedAt = (try? c.decode(Double.self, forKey: .updatedAt)) ?? 0
+    }
+
+    /// Widget-gallery preview only (WidgetKit's placeholder), never real data.
     static let placeholder = SelahPayload(
         kind: "dailyVerse",
         eyebrow: "Psalm 46:10",
@@ -32,14 +61,32 @@ struct SelahPayload: Decodable {
         updatedAt: 0
     )
 
+    /// Shown when the app's payload can't be found or read. Deliberately not a
+    /// verse, so a missing payload is obvious instead of passing for content.
+    static func unavailable(_ reason: String) -> SelahPayload {
+        SelahPayload(
+            kind: "note",
+            eyebrow: "Selah",
+            body: "Open Selah and choose what to keep here in Settings, Widgets.",
+            footer: reason,
+            accessoryShort: "Open Selah",
+            updatedAt: 0
+        )
+    }
+
     static func load() -> SelahPayload {
-        guard
-            let defaults = UserDefaults(suiteName: appGroup),
-            let raw = defaults.string(forKey: payloadKey),
-            let data = raw.data(using: .utf8),
-            let decoded = try? JSONDecoder().decode(SelahPayload.self, from: data)
-        else { return .placeholder }
-        return decoded
+        var sawData = false
+        for group in appGroups {
+            guard let defaults = UserDefaults(suiteName: group),
+                  let raw = defaults.string(forKey: payloadKey)
+            else { continue }
+            sawData = true
+            if let data = raw.data(using: .utf8),
+               let decoded = try? JSONDecoder().decode(SelahPayload.self, from: data) {
+                return decoded
+            }
+        }
+        return .unavailable(sawData ? "Couldn’t read widget data" : "No widget data yet")
     }
 }
 

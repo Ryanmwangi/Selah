@@ -22,8 +22,8 @@ assembleWidgetPayload()  ── reads verse text / streak from SQLite
         ▼
 refreshWidget():  store payload in settings table  +  publishWidget()
         │                                          src/lib/widgetBridge.ts
-        ├─ iOS:     ExtensionStorage.set(key,json) → App Group UserDefaults
-        │           ExtensionStorage.reloadWidget()  → WidgetKit redraws
+        ├─ iOS:     ExtensionStorage setString(key,json,group) → App Group UserDefaults
+        │           reloadWidget()  → WidgetKit redraws
         │           targets/widget/index.swift reads the suite
         └─ Android: requestWidgetUpdate() → headless JS task
                     src/widgets/widget-task-handler.tsx reads the settings
@@ -43,6 +43,8 @@ Payload is refreshed on app launch, after every entry save, and when you change 
    # or run locally:  npx expo run:ios   /   npx expo run:android
    ```
 4. Install the dev build, open Selah once (this publishes the first payload), then **long-press the home screen → add the Selah widget**, and on iPhone **customize the lock screen → add the Selah accessory widget.**
+
+**iOS deployment target must stay at 16.4 or higher** (`app.json` → `expo-build-properties`). The `ExtensionStorage` native module that writes the widget payload requires iOS 16.4, and Expo autolinking silently leaves out any pod whose minimum is above the app's target. Below 16.4 the app builds fine, but the widget never receives data (the app logs `ExtensionStorage native module is not in this build`).
 
 ## Files
 

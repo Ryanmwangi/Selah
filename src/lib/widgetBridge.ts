@@ -16,6 +16,7 @@
  * are never reached and their native modules are never touched. Requires are
  * static strings (Metro can't bundle a dynamic `require(variable)`).
  */
+import { requireOptionalNativeModule } from 'expo';
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { Platform } from 'react-native';
 import { serializeWidgetPayload, type WidgetPayload } from './widget/payload';
@@ -28,20 +29,27 @@ export function widgetsSupported(): boolean {
   return Constants.executionEnvironment !== ExecutionEnvironment.StoreClient;
 }
 
+/**
+ * Write to both App Groups (prod, dev variant) rather than guessing which one
+ * this build is signed with; the one it isn't entitled to is just a private,
+ * unread plist. targets/widget/index.swift reads the same two.
+ */
+const IOS_APP_GROUPS = ['group.app.selah.journal', 'group.app.selah.journal.dev'];
+
+/** The native half of @bacons/apple-targets' ExtensionStorage. */
+interface ExtensionStorageNative {
+  setString(key: string, value: string, group: string): void;
+  reloadWidget(kind?: string): void;
+}
+
 function pushIOS(json: string): void {
-  let ExtensionStorage: {
-    set(key: string, value: string): void;
-    reloadWidget(name?: string): void;
-  } | undefined;
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    ExtensionStorage = require('@bacons/apple-targets').ExtensionStorage;
-  } catch {
-    return;
-  }
-  if (!ExtensionStorage) return;
-  ExtensionStorage.set(WIDGET_STORE_KEY, json);
-  ExtensionStorage.reloadWidget();
+  // Go to the native module directly rather than through the package's JS
+  // wrapper: if the module is missing, the wrapper silently swaps in no-ops,
+  // and the widget sits on its fallback forever with no sign of why.
+  const native = requireOptionalNativeModule<ExtensionStorageNative>('ExtensionStorage');
+  if (!native) throw new Error('ExtensionStorage native module is not in this build');
+  for (const group of IOS_APP_GROUPS) native.setString(WIDGET_STORE_KEY, json, group);
+  native.reloadWidget();
 }
 
 async function pushAndroid(payload: WidgetPayload): Promise<void> {
@@ -76,14 +84,19 @@ async function pushAndroid(payload: WidgetPayload): Promise<void> {
  * Publish a payload to the widgets. Caller persists the JSON in the settings
  * table first (so the Android task and in-app preview can read it); this then
  * pokes the OS. Safe to call anywhere, no-ops without native support.
+ * Never throws; returns why it failed (or null) so a screen can say so.
  */
-export async function publishWidget(payload: WidgetPayload): Promise<void> {
-  if (!widgetsSupported()) return;
+export async function publishWidget(payload: WidgetPayload): Promise<string | null> {
+  if (!widgetsSupported()) return null;
   const json = serializeWidgetPayload(payload);
   try {
     if (Platform.OS === 'ios') pushIOS(json);
     else if (Platform.OS === 'android') await pushAndroid(payload);
-  } catch {
+    return null;
+  } catch (e) {
     // Never let a widget refresh crash journaling.
+    const msg = e instanceof Error ? e.message : String(e);
+    console.warn(`[widget] publish failed: ${msg}`);
+    return msg;
   }
 }

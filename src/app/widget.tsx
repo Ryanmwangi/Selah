@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { IconButton } from '../components/IconButton';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { Overline, Serif, Ui } from '../components/Typ';
@@ -70,8 +70,12 @@ export default function WidgetSettings() {
 
   const save = async () => {
     await saveWidgetConfig(journal, { kind, note });
-    await refreshWidget(journal, scripture, Date.now());
+    const { error } = await refreshWidget(journal, scripture, Date.now());
     await queryClient.invalidateQueries();
+    if (error) {
+      // saved in the app either way; only the home/lock-screen copy is stale
+      Alert.alert('Widget not updated', `Your choice is saved, but the widget couldn't be reached.\n\n${error}`);
+    }
     router.back();
   };
 

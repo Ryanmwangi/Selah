@@ -78,11 +78,16 @@ export async function assembleWidgetPayload(
 /**
  * Rebuild the payload, store it (so the Android widget task and the in-app
  * preview can read it), and push it to the OS widgets. Call after anything
- * that changes what the widget should show. Returns the payload for preview.
+ * that changes what the widget should show. Returns the payload for preview
+ * and, if the OS widget couldn't be reached, why.
  */
-export async function refreshWidget(journal: Sql, scripture: Sql, now: number): Promise<WidgetPayload> {
+export async function refreshWidget(
+  journal: Sql,
+  scripture: Sql,
+  now: number,
+): Promise<{ payload: WidgetPayload; error: string | null }> {
   const payload = await assembleWidgetPayload(journal, scripture, now);
   await setSetting(journal, 'widget_payload', serializeWidgetPayload(payload));
-  await publishWidget(payload);
-  return payload;
+  const error = await publishWidget(payload);
+  return { payload, error };
 }

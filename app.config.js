@@ -2,8 +2,8 @@
  * Dynamic layer over app.json. With APP_VARIANT=development (set by the EAS
  * "development" profile) the app gets its own identity, so a dev client
  * installs beside the App Store build instead of replacing it (and its data).
- * The widget's Swift reads the production App Group, so the widget is empty
- * in the dev variant; everything else behaves the same.
+ * The app and widget both use whichever App Group the build is signed with
+ * (they write/read both), so the widget works in the dev variant too.
  */
 const isDev = process.env.APP_VARIANT === 'development';
 
