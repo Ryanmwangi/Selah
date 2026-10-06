@@ -49,7 +49,8 @@ export default function EntryReader() {
   const moodLabels = entry.moods.map((m) => MOOD_META[m]?.label).filter(Boolean).join(' · ');
   const invalidate = () => queryClient.invalidateQueries();
   // tapping the writing goes straight to editing, cursor in the text
-  const editHere = () => router.push({ pathname: '/compose', params: { id: entry.id, focus: '1' } });
+  const editHere = (focus: 'title' | 'body' = 'body') =>
+    router.push({ pathname: '/compose', params: { id: entry.id, focus } });
 
   const confirmDelete = () =>
     Alert.alert(
@@ -145,7 +146,11 @@ export default function EntryReader() {
           ) : null}
         </View>
 
-        {entry.title ? <Display>{entry.title}</Display> : null}
+        {entry.title ? (
+          <Pressable onPress={() => editHere('title')} accessibilityRole="button" accessibilityLabel="Edit title">
+            <Display>{entry.title}</Display>
+          </Pressable>
+        ) : null}
 
         {entry.verseLinks.map((l) => {
           const ref = linkToRef(l);
@@ -161,7 +166,7 @@ export default function EntryReader() {
         {parseBody(entry.body).map((b, i) => {
           if (b.kind === 'text') {
             return b.text.trim() ? (
-              <Pressable key={`t${i}`} onPress={editHere} accessibilityRole="button" accessibilityLabel="Edit entry">
+              <Pressable key={`t${i}`} onPress={() => editHere('body')} accessibilityRole="button" accessibilityLabel="Edit entry">
                 <MarkdownView body={b.text} />
               </Pressable>
             ) : null;
@@ -204,7 +209,7 @@ export default function EntryReader() {
           </View>
         ) : null}
         {/* empty space under the entry also starts editing */}
-        <Pressable onPress={editHere} accessibilityLabel="Edit entry" style={{ minHeight: 60 }} />
+        <Pressable onPress={() => editHere('body')} accessibilityLabel="Edit entry" style={{ minHeight: 60 }} />
       </ScrollView>
     </View>
   );

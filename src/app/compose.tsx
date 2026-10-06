@@ -44,7 +44,7 @@ export default function Compose() {
   const t = useTheme();
   const { journal, scripture } = useDb();
   const queryClient = useQueryClient();
-  const params = useLocalSearchParams<{ id?: string; v?: string; promptId?: string; focus?: string }>();
+  const params = useLocalSearchParams<{ id?: string; v?: string; promptId?: string; focus?: 'title' | 'body' }>();
   const draft = useDraftStore();
   const [loaded, setLoaded] = useState(false);
   const [locating, setLocating] = useState(false);
@@ -467,6 +467,7 @@ export default function Compose() {
           style={{ fontFamily: fonts.display, fontSize: 23, color: t.ink }}
           returnKeyType="next"
           onSubmitEditing={() => bodyRef.current?.focus()}
+          autoFocus={!!params.id && params.focus === 'title'}
           accessibilityLabel="Entry title"
         />
 
@@ -496,7 +497,7 @@ export default function Compose() {
                   cursorRef.current = { index: i, cursor: e.nativeEvent.selection.start };
                 }}
                 multiline
-                autoFocus={params.id ? params.focus === '1' && i === blocks.length - 1 : i === 0}
+                autoFocus={params.id ? params.focus === 'body' && i === blocks.length - 1 : i === 0}
                 textAlignVertical="top"
                 scrollEnabled={false}
                 style={{
